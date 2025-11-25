@@ -10,7 +10,6 @@
 #pragma warning(push)
 #include "F4SE/F4SE.h"
 #include "RE/Fallout.h"
-#include "REX/REX/Singleton.h"
 
 #ifdef NDEBUG
 #	include <spdlog/sinks/basic_file_sink.h>
@@ -25,6 +24,7 @@
 
 #define DLLEXPORT __declspec(dllexport)
 
+#include "OS/SysCall.h"
 #include "ext/ICommon.h"
 #include "ext/IErrors.h"
 #include "ext/ITypes.h"

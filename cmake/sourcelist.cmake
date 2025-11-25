@@ -1,5 +1,6 @@
 set(sources ${sources}
 	src/PCH.cpp
+	src/OS/SysCall.cpp
 	src/ext/IErrors.cpp
 	src/ext/PerfCounter.cpp
 	src/ext/INIReader.cpp

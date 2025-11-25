@@ -266,23 +266,23 @@ namespace HFPF
 		PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN m_D3D11CreateDeviceAndSwapChain_O;
 		CreateDXGIFactory_T                    m_createDXGIFactory_O;
 
-		inline static REL::Relocation<std::uintptr_t> FPS_Cap_Patch1{ AID::FPS_Cap_Patch1, (REL::Module::get().version() >= F4SE::RUNTIME_LATEST) ? Offsets::FPS_Cap_Patch1 : 0xBC7 };
-		inline static REL::Relocation<std::uintptr_t> FPS_Cap_Patch2{ AID::FPS_Cap_Patch1, (REL::Module::get().version() >= F4SE::RUNTIME_LATEST) ? Offsets::FPS_Cap_Patch2 : 0xBD0 };
-		inline static REL::Relocation<std::uintptr_t> Borderless_Patch{ AID::FPS_Cap_Patch1, (REL::Module::get().version() >= F4SE::RUNTIME_LATEST) ? Offsets::Borderless_Patch : 0xB87 };
+		inline static REL::Relocation<std::uintptr_t> FPS_Cap_Patch1{ AID::FPS_Cap_Patch1, Offsets::FPS_Cap_Patch1 };
+		inline static REL::Relocation<std::uintptr_t> FPS_Cap_Patch2{ AID::FPS_Cap_Patch1, Offsets::FPS_Cap_Patch2 };
+		inline static REL::Relocation<std::uintptr_t> Borderless_Patch{ AID::FPS_Cap_Patch1, Offsets::Borderless_Patch };
 		inline static REL::Relocation<std::uintptr_t> FullScreen_Patch1{ AID::FullScreen_Patch1, Offsets::FullScreen_Patch1 };
 		inline static REL::Relocation<std::uintptr_t> FullScreen_Patch3{ AID::FullScreen_Patch1, Offsets::FullScreen_Patch3 };
-		inline static REL::Relocation<std::uintptr_t> Screen_Patch{ AID::FPS_Cap_Patch1, (REL::Module::get().version() >= F4SE::RUNTIME_LATEST) ? Offsets::Screen_Patch : 0xB4A };
-		inline static REL::Relocation<std::uintptr_t> MovRaxRcx{ AID::MovRaxRcx, Offsets::MovRaxRcx };
-		inline static REL::Relocation<std::uintptr_t> ResizeBuffersDisable{ AID::MovRaxRcx, Offsets::ResizeBuffersDisable };
-		inline static REL::Relocation<std::uintptr_t> ResizeBuffersInject{ AID::MovRaxRcx, Offsets::ResizeBuffers };
+		inline static REL::Relocation<std::uintptr_t> Screen_Patch{ AID::FPS_Cap_Patch1, Offsets::Screen_Patch };
+		inline static REL::Relocation<std::uintptr_t> ResizeBuffersDisable{ AID::ResizeBuffers, Offsets::ResizeBuffersDisable };
+		inline static REL::Relocation<std::uintptr_t> MovRaxRcx{ AID::ResizeBuffers, Offsets::MovRaxRcx };
+		inline static REL::Relocation<std::uintptr_t> ResizeBuffersInject{ AID::ResizeBuffers, Offsets::ResizeBuffers };
 		inline static REL::Relocation<std::uintptr_t> ResizeTargetDisable{ AID::ResizeTarget, Offsets::ResizeTargetDisable };
 		inline static REL::Relocation<std::uintptr_t> ResizeTarget{ AID::ResizeTarget, Offsets::ResizeTarget };
-		inline static REL::Relocation<std::uintptr_t> CreateDXGIFactory{ AID::CreateDXGIFactory, Offsets::CreateDXGIFactory };
-		inline static REL::Relocation<std::uintptr_t> D3D11CreateDeviceAndSwapChain{ AID::CreateDXGIFactory, Offsets::D3D11CreateDeviceAndSwapChain };
-		inline static REL::Relocation<std::uintptr_t> BethesdaVsync{ AID::CreateDXGIFactory, Offsets::BethesdaVsync };
+		inline static REL::Relocation<std::uintptr_t> CreateDXGIFactory{ AID::D3D11Create, Offsets::CreateDXGIFactory };
+		inline static REL::Relocation<std::uintptr_t> D3D11CreateDeviceAndSwapChain{ AID::D3D11Create, Offsets::D3D11CreateDeviceAndSwapChain };
+		inline static REL::Relocation<std::uintptr_t> BethesdaVsync{ AID::D3D11Create, Offsets::BethesdaVsync };
 		inline static REL::Relocation<std::uintptr_t> Present{ AID::LoadScreenPlusLimiterInject, Offsets::PresentInject };
-		inline static REL::Relocation<std::uintptr_t> iSizeW_Patch{ AID::FPS_Cap_Patch1, (REL::Module::get().version() >= F4SE::RUNTIME_LATEST) ? Offsets::iSizeW : 0xB93 };
-		inline static REL::Relocation<std::uintptr_t> iSizeH_Patch{ AID::FPS_Cap_Patch1, (REL::Module::get().version() >= F4SE::RUNTIME_LATEST) ? Offsets::iSizeH : 0xBA1 };
+		inline static REL::Relocation<std::uintptr_t> iSizeW_Patch{ AID::FPS_Cap_Patch1, Offsets::iSizeW };
+		inline static REL::Relocation<std::uintptr_t> iSizeH_Patch{ AID::FPS_Cap_Patch1, Offsets::iSizeH };
 		inline static REL::Relocation<int*>           g_extInt{ AID::ExtInt, 0x20 };
 
 		std::vector<presentCallback_t> m_presentCallbacksPre;

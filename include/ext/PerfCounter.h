@@ -148,7 +148,7 @@ public:
 				m_tAccum = 0;
 				m_tIntervalBegin = tEnd;
 			}
-			else  // overflow
+			else
 			{
 				a_out = 0;
 				Reset();

@@ -622,7 +622,7 @@ namespace HFPF
 	}
 	EventResult DRender::ProcessEvent(const RE::MenuOpenCloseEvent& a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*)
 	{
-		if (a_event.menuName == RE::LoadingMenu::MENU_NAME) {
+		if (a_event.menuName == RE::BSFixedString("LoadingMenu")) {
 			if (a_event.opening) {
 				QueueFPSLimitOverride(m_Instance.m_limits.loading_fps, m_Instance.m_conf.disable_vsync_loading);
 				if (m_Instance.OSD_Load_Time) {

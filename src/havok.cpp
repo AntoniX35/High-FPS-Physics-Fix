@@ -74,7 +74,7 @@ namespace HFPF
 			Patch_FixStuttering();
 		}
 		if (m_conf.fix_white_screen) {
-			REL::safe_fill(FixWhiteScreen.address(), Payloads::NOP, 0x35);
+			REL::safe_fill(FixWhiteScreen.address(), Payloads::NOP, 0x3C);
 		}
 		if (m_conf.fix_wind_speed) {
 			Patch_FixWindSpeed();
@@ -111,8 +111,8 @@ namespace HFPF
 					Xbyak::Label retnLabel;
 					Xbyak::Label magicLabel;
 
-					movss(xmm5, dword[rip + magicLabel]);
-					cvttss2si(rcx, xmm5);
+					movss(xmm3, dword[rip + magicLabel]);
+					cvttss2si(rcx, xmm3);
 
 					jmp(ptr[rip + retnLabel]);
 
@@ -142,12 +142,12 @@ namespace HFPF
 				{
 					Xbyak::Label retnLabel;
 
-					movss(xmm4, xmm6);
+					movss(xmm2, xmm6);
 
 					jmp(ptr[rip + retnLabel]);
 
 					L(retnLabel);
-					dq(retnAddr + 0x8);
+					dq(retnAddr + 0x6);
 				}
 			};
 			{
@@ -159,9 +159,9 @@ namespace HFPF
 					FixStuttering3.address(),
 					trampoline.allocate(code));
 			}
-			REL::safe_write(FixStuttering3.address() + 0x5, &Payloads::NOP3, 0x3);
+			REL::safe_write(FixStuttering3.address() + 0x5, &Payloads::NOP, 0x1);
 		}
-		REL::safe_write(FixStuttering3.address() + 0x10, &Payloads::NOP8, 0x8);
+		REL::safe_write(FixStuttering3.address() + 0xE, &Payloads::NOP4, 0x4);
 		{
 			//fix moving objects
 			struct FixStutter3 : Xbyak::CodeGenerator
@@ -352,7 +352,7 @@ namespace HFPF
 					mov(rcx, ptr[rip + timerLabel]);
 					mulss(xmm2, dword[rcx]);
 					L(jmpLabel);
-					mulss(xmm2, ptr[rdi + 0x38]);
+					mulss(xmm2, ptr[rbx + 0x38]);
 
 					jmp(ptr[rip + retnLabel]);
 
@@ -363,10 +363,10 @@ namespace HFPF
 					dq(a_frameTimer);
 
 					L(forwardLabel);
-					dd(0x403c3c3c);  // 2.94118
+					dq(uintptr_t(Magic1));  // 58.8235
 
 					L(reverseLabel);
-					dd(0xc03c3c4b);  // -2.94118
+					dq(uintptr_t(Magic2));  // -58.8235
 				}
 			};
 			logger::info("[Havok] [Patch] [Fix rotation speed] patching...");
@@ -509,7 +509,7 @@ namespace HFPF
 				Xbyak::Label timerLabel;
 
 				mov(rax, ptr[rip + timerLabel]);
-				mulss(xmm0, dword[rax]);
+				mulss(xmm1, dword[rax]);
 
 				jmp(ptr[rip + retnLabel]);
 
@@ -631,8 +631,8 @@ namespace HFPF
 					Xbyak::Label retnLabel;
 					Xbyak::Label magicLabel;
 
-					mov(ecx, ptr[rdi + 0x26C]);
-					movss(xmm7, dword[rip + magicLabel]);
+					mov(ecx, ptr[rbx + 0x26C]);
+					movss(xmm8, dword[rip + magicLabel]);
 
 					jmp(ptr[rip + retnLabel]);
 

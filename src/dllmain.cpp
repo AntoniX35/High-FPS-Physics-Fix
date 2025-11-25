@@ -24,21 +24,6 @@ void MessageHandler(F4SE::MessagingInterface::Message* a_message)
 	}
 }
 
-extern "C" DLLEXPORT constinit auto F4SEPlugin_Version = []() noexcept {
-	F4SE::PluginVersionData data{};
-
-	data.PluginVersion({ Version::MAJOR, Version::MINOR, Version::PATCH });
-	data.PluginName(Version::PROJECT.data());
-	data.AuthorName("AntoniX35");
-	data.UsesAddressLibrary(true);
-	data.UsesSigScanning(false);
-	data.IsLayoutDependent(true);
-	data.HasNoStructUse(false);
-	data.CompatibleVersions({ F4SE::RUNTIME_LATEST });
-
-	return data;
-}();
-
 void InitializeLog()
 {
 	auto path = logger::log_directory();
@@ -61,7 +46,7 @@ void InitializeLog()
 	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
 }
 
-extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(F4SE::PluginInfo* a_info)
+extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* a_f4se, F4SE::PluginInfo* a_info)
 {
 	a_info->infoVersion = F4SE::PluginInfo::kVersion;
 	a_info->name = Version::PROJECT.data();
@@ -72,16 +57,14 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(F4SE::PluginInfo* a_info)
 
 extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f4se)
 {
-	F4SE::Init(a_f4se, false);
-	F4SE::AllocTrampoline(1 << 20);
+	F4SE::Init(a_f4se);
+	F4SE::AllocTrampoline(1 << 12);
 
 	const auto ver = a_f4se->RuntimeVersion();
 
-	InitializeLog();
-
 	logger::info("Game version : {}", ver.string());
 
-	if (ver < F4SE::RUNTIME_1_11_137) {
+	if (ver < F4SE::RUNTIME_1_10_130) {
 		logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
 		return false;
 	}

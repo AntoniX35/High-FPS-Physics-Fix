@@ -1,5 +1,6 @@
 set(headers ${headers}
 	include/PCH.h
+	include/OS/SysCall.h
 	include/ext/IErrors.h
 	include/ext/PerfCounter.h
 	include/ext/INIReader.h

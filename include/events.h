@@ -57,7 +57,7 @@ namespace HFPF
 
 		decltype(&PostLoadPluginINI_Hook) LoadPluginINI_O;
 
-		inline static REL::Relocation<std::uintptr_t> LoadPluginINI_C{ AID::FPS_Cap_Patch1, Offsets::LoadPluginINI_C };
+		inline static REL::Relocation<std::uintptr_t> LoadPluginINI_C{ AID::LoadPluginINI_C, Offsets::LoadPluginINI_C };
 
 		static IEvents m_Instance;
 	};

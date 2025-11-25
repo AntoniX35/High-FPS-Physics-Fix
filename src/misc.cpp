@@ -49,8 +49,8 @@ namespace HFPF
 		if (m_conf.disable_loading_screens) {
 			REL::safe_write(
 				LoadingScreensAddress.address(),
-				reinterpret_cast<const void*>(Payloads::NOP5),
-				sizeof(Payloads::NOP5));
+				reinterpret_cast<const void*>(Payloads::NOP4),
+				sizeof(Payloads::NOP4));
 		}
 		if (m_conf.post_loading_speed != 1.0f) {
 			{

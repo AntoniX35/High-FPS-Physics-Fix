@@ -12,9 +12,9 @@ macro(set_from_environment VARIABLE)
 	endif ()
 endmacro()
 
-set_from_environment(Fallout4Path)
+set_from_environment(Fallout4Path-163)
 set_from_environment(VCPKG_ROOT)
-set_from_environment(CommonLibF4Path)
+set_from_environment(CommonLibF4-163)
 
 if (DEFINED VCPKG_ROOT)
 	set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
@@ -32,7 +32,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STR
 
 project(
 	HighFPSPhysicsFix
-	VERSION 0.8.12
+	VERSION 0.8.11
 	LANGUAGES CXX RC
 )
 
@@ -78,12 +78,12 @@ set(Boost_USE_STATIC_LIBS ON)
 
 # ---- Dependencies ----
 
-if (DEFINED CommonLibF4Path AND NOT ${CommonLibF4Path} STREQUAL "" AND IS_DIRECTORY ${CommonLibF4Path})
-	add_subdirectory(${CommonLibF4Path} CommonLibF4)
+if (DEFINED CommonLibF4-163 AND NOT ${CommonLibF4-163} STREQUAL "" AND IS_DIRECTORY ${CommonLibF4-163})
+	add_subdirectory(${CommonLibF4-163} CommonLibF4)
 else ()
 	message(
 		FATAL_ERROR
-		"Variable CommonLibF4Path is not set."
+		"Variable CommonLibF4-163 is not set."
 	)
 endif ()
 
@@ -92,11 +92,7 @@ find_path(CLIBUTIL_INCLUDE_DIRS "CLibUtil/string.hpp")
 
 find_package(directxtk CONFIG REQUIRED)
 find_package(spdlog REQUIRED CONFIG)
-#find_package(Boost
-#	REQUIRED
-#	COMPONENTS
-#		serialization
-#)
+find_package(Boost REQUIRED)
 
 # ---- Add source files ----
 
@@ -156,7 +152,7 @@ target_link_libraries(
 		CommonLibF4::CommonLibF4
 		spdlog::spdlog
 		Microsoft::DirectXTK
-		#Boost::serialization
+		Boost::boost
 )
 
 target_precompile_headers(
@@ -193,16 +189,16 @@ endif ()
 # ---- Post build ----
 
 if (COPY_BUILD)
-	if (DEFINED Fallout4Path)
+	if (DEFINED Fallout4Path-163)
 		add_custom_command(
 			TARGET ${PROJECT_NAME}
 			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${Fallout4Path}/Data/F4SE/Plugins/
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${Fallout4Path-163}/Data/F4SE/Plugins/
 		)
 	else ()
 		message(
 			WARNING
-			"Variable Fallout4Path is not defined. Skipping post-build copy command."
+			"Variable Fallout4Path-163 is not defined. Skipping post-build copy command."
 		)
 	endif ()
 endif ()

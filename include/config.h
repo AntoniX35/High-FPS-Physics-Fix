@@ -10,7 +10,7 @@
 #define PLUGIN_NAME_LONG            "High FPS Physics Fix"
 #define PLUGIN_AUTHOR               "AntoniX"
 #define SUPPORTED_RUNTIME_VERSION   CURRENT_RELEASE_RUNTIME
-#define MINIMUM_RUNTIME_VERSION     RUNTIME_VERSION_1_10_980
+#define MINIMUM_RUNTIME_VERSION     RUNTIME_VERSION_1_10_163
 #define COMPATIBLE(runtimeVersion)  (runtimeVersion >= MINIMUM_RUNTIME_VERSION)
 
 #define PLUGIN_BASE_PATH            "Data\\F4SE\\Plugins\\"

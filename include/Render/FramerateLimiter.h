@@ -75,24 +75,36 @@ namespace HFPF
 			}
 		}
 
-		SKMP_FORCEINLINE void WaitBusy(long long a_deadline)
-		{
-			while (IPerfCounter::Query() < a_deadline)
-			{
-				/*auto start = __rdtsc();
+SKMP_FORCEINLINE void WaitBusy(long long a_deadline)
+{
+    using clk = std::chrono::steady_clock;
 
-                do
-                {
-                    _mm_pause();
+    // convert the perf-counter timestamp to steady_clock
+    // or if your IPerfCounter already uses QPC, just call it directly
+    while (true) {
+        long long now = IPerfCounter::Query();
+        if (now >= a_deadline) {
+            return;
+        }
 
-                    if (IPerfCounter::Query() >= a_deadline)
-                        return;
+        long long remaining_us = IPerfCounter::delta_us(now, a_deadline);
 
-                } while ((__rdtsc() - start) < 5000i64);*/
+        // If more than ~2ms left, sleep coarsely
+        if (remaining_us > 2000) {
+            std::this_thread::sleep_for(std::chrono::microseconds(remaining_us - 500));
+            continue;
+        }
 
-				Sleep(0);
-			}
-		}
+        // If between ~0.5ms and 2ms left, yield lightly
+        if (remaining_us > 500) {
+            std::this_thread::yield();
+            continue;
+        }
+
+        // Final microspin for timing precision
+        _mm_pause();
+    }
+}
 
 		long long m_lastTimePoint;
 		HANDLE    m_hTimer;
