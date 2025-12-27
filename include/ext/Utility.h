@@ -1,6 +1,6 @@
-//#include <string>
+#pragma once
 
-std::string to_native( const std::wstring& w_str )
+inline std::string to_native(const std::wstring& w_str)
 {
     if (!w_str.length())
         return "";

@@ -73,6 +73,7 @@
 #include "stats.h"
 #include "misc.h"
 #include "osd.h"
+#include "resources.h"
 #include "papyrus.h"
 #include "render.h"
 #include "window.h"

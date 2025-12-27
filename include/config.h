@@ -4,13 +4,13 @@
 //-----------------------
 // Plugin Information
 //-----------------------
-#define PLUGIN_VERSION              19
-#define PLUGIN_VERSION_STRING       "0.8.11"
+#define PLUGIN_VERSION              21
+#define PLUGIN_VERSION_STRING       "0.8.13"
 #define PLUGIN_NAME_SHORT           "HighFPSPhysicsFix"
 #define PLUGIN_NAME_LONG            "High FPS Physics Fix"
 #define PLUGIN_AUTHOR               "AntoniX"
 #define SUPPORTED_RUNTIME_VERSION   CURRENT_RELEASE_RUNTIME
-#define MINIMUM_RUNTIME_VERSION     RUNTIME_VERSION_1_10_163
+#define MINIMUM_RUNTIME_VERSION     RUNTIME_VERSION_1_10_160
 #define COMPATIBLE(runtimeVersion)  (runtimeVersion >= MINIMUM_RUNTIME_VERSION)
 
 #define PLUGIN_BASE_PATH            "Data\\F4SE\\Plugins\\"

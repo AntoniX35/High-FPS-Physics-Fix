@@ -24,17 +24,32 @@ namespace HFPF
 
 			if (waitTime > 0)
 			{
-				auto deadline = now + IPerfCounter::T(waitTime);
+				// convert the perf-counter timestamp to steady_clock
+				// or if your IPerfCounter already uses QPC, just call it directly
+				auto a_deadline = now + IPerfCounter::T(waitTime);
 
-				/*if (m_hTimer != nullptr && waitTime > 2000LL)
-                {
-                    WaitTimer(waitTime - 2000LL, deadline - IPerfCounter::T(2000LL));
-                }*/
+				while (true) {
+					now = IPerfCounter::Query();
+					if (now >= a_deadline) {
+						now = a_deadline;
+						break;
+					}
 
-				WaitBusy(deadline);
+					const long long remaining_us = IPerfCounter::delta_us(now, a_deadline);
+
+					// If more than ~2ms left, sleep coarsely
+					if (remaining_us > 2000) {
+						std::this_thread::sleep_for(std::chrono::microseconds(remaining_us - 1500));
+						continue;
+					}
+
+					// Final microspin for timing precision
+					_mm_pause();
+				}
 			}
 
-			m_lastTimePoint = IPerfCounter::Query();
+			// Adjust in case we overran
+			m_lastTimePoint = now;
 		}
 
 	private:
@@ -74,37 +89,6 @@ namespace HFPF
 				status = ISysCall::NtWaitForSingleObject(m_hTimer, FALSE, &timeOut);
 			}
 		}
-
-SKMP_FORCEINLINE void WaitBusy(long long a_deadline)
-{
-    using clk = std::chrono::steady_clock;
-
-    // convert the perf-counter timestamp to steady_clock
-    // or if your IPerfCounter already uses QPC, just call it directly
-    while (true) {
-        long long now = IPerfCounter::Query();
-        if (now >= a_deadline) {
-            return;
-        }
-
-        long long remaining_us = IPerfCounter::delta_us(now, a_deadline);
-
-        // If more than ~2ms left, sleep coarsely
-        if (remaining_us > 2000) {
-            std::this_thread::sleep_for(std::chrono::microseconds(remaining_us - 500));
-            continue;
-        }
-
-        // If between ~0.5ms and 2ms left, yield lightly
-        if (remaining_us > 500) {
-            std::this_thread::yield();
-            continue;
-        }
-
-        // Final microspin for timing precision
-        _mm_pause();
-    }
-}
 
 		long long m_lastTimePoint;
 		HANDLE    m_hTimer;

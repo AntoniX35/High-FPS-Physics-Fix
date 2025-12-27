@@ -3,8 +3,11 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #include <ext/InputMap.h>
+#include <ext/Utility.h>
 
 using std::chrono::milliseconds;
+
+extern "C" IMAGE_DOS_HEADER __ImageBase;
 
 namespace HFPF
 {
@@ -77,8 +80,8 @@ namespace HFPF
 		m_conf.font_scale = GetConfigValue(SECTION_OSD, CKEY_SCALE, "1 0.9");
 		m_conf.font_autoscale = GetConfigValue(SECTION_OSD, CKEY_AUTOSCALE, true);
 		m_conf.scale_to_window = GetConfigValue(SECTION_OSD, CKEY_SCALETOWINDOW, true);
-		//m_conf.font = GetConfigValue<Font>(SECTION_OSD, CKEY_FONT, Font::DroidSans);
-		m_conf.font_file = GetConfigValue(SECTION_OSD, CKEY_FONTFILE, "");
+		m_conf.font = GetConfigValue<Font>(SECTION_OSD, CKEY_FONT, Font::DroidSans);
+		m_conf.font_file = GetConfigValue(SECTION_OSD, CKEY_FONTFILE, "droidsans.font");
 		m_conf.font_color = GetConfigValue(SECTION_OSD, CKEY_FONTCOLOR, "21 255 18 240");
 		m_conf.font_outline_color = GetConfigValue(SECTION_OSD, CKEY_FONTOUTLINECOLOR, "0 0 0");
 		m_conf.outline_size = GetConfigValue(SECTION_OSD, CKEY_FONTOUTLINEOFFSET, 1.0f);
@@ -103,9 +106,9 @@ namespace HFPF
 
 			m_Instance.m_stats.warmup = 2;
 
-			// if (!m_conf.font || m_conf.font >= Font::FontMax) {
-			// m_conf.font = Font::DroidSans;
-			// }
+			 if (!m_conf.font || m_conf.font >= Font::FontMax) {
+				m_conf.font = Font::DroidSans;
+			 }
 
 			ConfigParseColors(m_conf.font_color, m_stats.colors.font);
 			ConfigParseColors(m_conf.font_outline_color, m_stats.colors.outline);
@@ -133,11 +136,6 @@ namespace HFPF
 	{
 		return IDDispatcher::DriverOK(DRender::ID);
 	}
-
-	// int DOSD::ConfigGetFontResource(Font param)
-	// {
-	// return IDR_DROIDSANS;
-	// }
 
 	StatsRenderer::Align DOSD::ConfigGetStatsRendererAlignment(std::int32_t param)
 	{
@@ -258,7 +256,7 @@ namespace HFPF
 
 	bool StatsRenderer::Load(int resource)
 	{
-		auto handle = GetCurrentModuleHandle();
+		auto handle = reinterpret_cast<HMODULE>(std::addressof(__ImageBase));
 
 		HRSRC hRes = ::FindResource(handle, MAKEINTRESOURCE(resource), RT_RCDATA);
 		if (hRes == nullptr) {
@@ -544,8 +542,7 @@ finish:
 				m_stats.colors.font,
 				m_stats.colors.outline);
 
-			bool res = false;
-			bool isCustom = false;
+            bool res = false;
 
 			if (!m_conf.font_file.empty()) {
 				std::wostringstream ss;
@@ -553,19 +550,20 @@ finish:
 
 				auto file = ss.str();
 
-				logger::info("[OSD] Loading OSD font");
+				logger::info("[OSD] Loading OSD font from '{}'", to_native(file));
 
-				if (!(res = renderer->Load(file.c_str()))) {
+             if (!(res = renderer->Load(file.c_str()))) {
 					logger::info("[OSD] Couldn't load font, falling back to built-in");
-				} else {
-					isCustom = true;
 				}
 			}
 
-			// if (!res) {
-			// res = renderer->Load(
-			// ConfigGetFontResource(m_conf.font));
-			// }
+			if (!res) {
+				logger::info("[OSD] Loading built-in OSD font");
+
+				if (!(res = renderer->Load(IDR_DROIDSANS))) {
+					logger::info("[OSD] Couldn't load built-in font");
+				}
+			}
 
 			if (res) {
 				if (m_conf.barefps && !m_conf.all) {
@@ -593,6 +591,8 @@ finish:
 				}
 
 				m_statsRenderer = std::move(renderer);
+
+				logger::info("[OSD] OSD initialized");
 			} else {
 				logger::info("[OSD] Couldn't load OSD renderer");
 			}

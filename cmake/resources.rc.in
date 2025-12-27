@@ -1,0 +1,4 @@
+#include <winres.h>
+#include "@CMAKE_CURRENT_SOURCE_DIR@/include/resources.h"
+
+IDR_DROIDSANS RCDATA "@CMAKE_CURRENT_SOURCE_DIR@/droidsans.font"

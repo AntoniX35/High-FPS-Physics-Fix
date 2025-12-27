@@ -98,11 +98,16 @@ namespace HFPF
 			logger::warn("[Miscellaneous] Render driver unavailable, FixCPUThreads disabling");
 			m_conf.fix_cpu_threads = false;
 		}
-		if (rd->m_conf.limits.ui_loadscreen > 0.0f && m_conf.fix_cpu_threads) {
+
+		if (m_conf.fix_cpu_threads) {
+			REL::safe_write(PresentThreadBlockAddress.address(),
+				reinterpret_cast<const void*>(Payloads::loading_patch),
+				sizeof(Payloads::loading_patch));
+
 			timing = IPerfCounter::Query();
 			auto& trampoline = F4SE::GetTrampoline();
-			trampoline.write_call<5>(LoadScreenPlusLimiterAddress.address(), reinterpret_cast<std::uintptr_t>(LimiterFunc));
-			m_conf.fps_loading_screen = rd->m_limits.loading_fps;
+			trampoline.write_call<5>(Present.address(), reinterpret_cast<std::uintptr_t>(ThreadWait));
+			m_conf.max_wait_time = static_cast<long long>((1.0L / 60.0L) * 1000000.0L);
 		}
 
 		if (m_conf.disable_actor_fade) {
@@ -150,12 +155,22 @@ namespace HFPF
 		return true;
 	}
 
-	void DMisc::LimiterFunc()
+	// Tries to make sure all the threads are finished before waiting for Vsync
+	// Vsync will block all threads immediately on completion of the draw (which is very quickly on a modern PC).
+	// Unless a 60fPS VSync comes first, then let it go.
+	void DMisc::ThreadWait()
 	{
-		while (IPerfCounter::delta_us(m_Instance.timing, IPerfCounter::Query()) < m_Instance.m_conf.fps_loading_screen) {
-			::Sleep(0);
+		long long wait_time_us = 0;
+		while (SwitchToThread()) {
+			wait_time_us = m_Instance.m_conf.max_wait_time - IPerfCounter::delta_us(m_Instance.timing, IPerfCounter::Query());
+
+			if (wait_time_us <= 0)
+				break;
+
+			_mm_pause();
 		}
-		m_Instance.timing = IPerfCounter::Query();
+
+		m_Instance.timing = IPerfCounter::Query() + wait_time_us;
 	}
 
 	void DMisc::Patch_SetThreadsNG()

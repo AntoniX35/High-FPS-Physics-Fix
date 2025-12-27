@@ -61,6 +61,9 @@ namespace hash
 			std::is_same_v<std::pair<T, std::wint_t>, std::pair<T, U>>),
 		int>;
 
+	template <class T>
+	inline constexpr bool           dependent_false_v = false;
+
 	SKMP_FORCEINLINE constexpr char toupper_ascii(char a_char) noexcept
 	{
 		return (a_char > 0x60 && a_char < 0x7B) ? a_char - 0x20 : a_char;
@@ -145,7 +148,7 @@ namespace hash
 		template <class T>
 		__declspec(noreturn) bool operator()(const T&, const T&) const
 		{
-			static_assert(false, ERRMSG_HASH_NOT_IMPL);
+			static_assert(dependent_false_v<T>, ERRMSG_HASH_NOT_IMPL);
 		}
 	};
 
@@ -204,7 +207,7 @@ namespace hash
 		template <class T>
 		__declspec(noreturn) bool operator()(const T&, const T&) const
 		{
-			static_assert(false, ERRMSG_HASH_NOT_IMPL);
+			static_assert(dependent_false_v<T>, ERRMSG_HASH_NOT_IMPL);
 		}
 	};
 
@@ -333,7 +336,7 @@ namespace hash
 			template <class T>
 			void operator()(T const&) const
 			{
-				static_assert(false, ERRMSG_HASH_NOT_IMPL);
+				static_assert(dependent_false_v<T>, ERRMSG_HASH_NOT_IMPL);
 			}
 		};
 
@@ -406,7 +409,7 @@ namespace hash
 			template <class T>
 			void operator()(T const&) const
 			{
-				static_assert(false, ERRMSG_HASH_NOT_IMPL);
+				static_assert(dependent_false_v<T>, ERRMSG_HASH_NOT_IMPL);
 			}
 		};
 

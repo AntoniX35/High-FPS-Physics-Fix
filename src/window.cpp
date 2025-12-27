@@ -9,6 +9,7 @@ namespace HFPF
 	static constexpr const char* CKEY_CENTER = "AutoCenter";
 	static constexpr const char* CKEY_OFFSETX = "OffsetX";
 	static constexpr const char* CKEY_OFFSETY = "OffsetY";
+	static constexpr const char* CKEY_DETECTFOCUS = "DetectFocus";
 
 	DWindow DWindow::m_Instance;
 
@@ -42,7 +43,9 @@ namespace HFPF
 
 	DWindow::DWindow() :
 		m_gv{ .iLocationX = nullptr, .iLocationY = nullptr },
-		m_upscaling{ .resized = false, .hWnd = nullptr }
+		m_upscaling{ .resized = false, .hWnd = nullptr },
+		m_focused(true),
+		m_focus_tracking(false)
 	{
 	}
 
@@ -53,6 +56,7 @@ namespace HFPF
 		m_conf.force_minimize = GetConfigValue(SECTION_WINDOW, CKEY_FORCEMIN, false);
 		m_conf.offset_x = GetConfigValue(SECTION_WINDOW, CKEY_OFFSETX, 0);
 		m_conf.offset_y = GetConfigValue(SECTION_WINDOW, CKEY_OFFSETY, 0);
+		m_conf.detect_focus = GetConfigValue(SECTION_WINDOW, CKEY_DETECTFOCUS, true);
 
 		auto rd = IDDispatcher::GetDriver<DRender>();
 		m_conf.upscale = rd && rd->IsOK() && rd->m_conf.upscale;
@@ -80,6 +84,9 @@ namespace HFPF
 			REL::safe_write(m_Instance.Write_iLocationX.address(), &Payloads::NOP6, 0x6);
 			REL::safe_write(m_Instance.Write_iLocationY.address(), &Payloads::NOP6, 0x6);
 			logger::info("[Window] Forcing minimize on focus loss");
+		}
+		if (m_conf.detect_focus) {
+			DetectFocusChange();
 		}
 	}
 
@@ -128,6 +135,31 @@ namespace HFPF
 					::ShowWindow(hWnd, SW_MINIMIZE);
 				});
 		}
+	}
+
+	void DWindow::DetectFocusChange()
+	{
+		if (m_focus_tracking) {
+			return;
+		}
+
+		m_focus_tracking = true;
+
+		m_mp.Add(
+			{ WM_SETFOCUS },
+			[&](HWND, UINT, WPARAM, LPARAM) {
+				if (!m_focused) {
+					m_focused = true;
+					DRender::SetFocused(true);
+				}
+			});
+		m_mp.Add(WM_KILLFOCUS,
+			[&](HWND, UINT, WPARAM, LPARAM) {
+				if (m_focused) {
+					m_focused = false;
+					DRender::SetFocused(false);
+				}
+			});
 	}
 
 	void DWindow::RegisterHooks()

@@ -35,7 +35,7 @@ namespace HFPF
 		virtual bool Prepare() override;
 
 		static void Patch_SetThreadsNG();
-		static void LimiterFunc();
+		static void ThreadWait();
 
 		long long timing;
 
@@ -44,7 +44,7 @@ namespace HFPF
 			bool      disable_black_loading;
 			bool      disable_loading_screens;
 			float     post_loading_speed;
-			long long fps_loading_screen;
+			long long max_wait_time;
 			bool      one_thread;
 			bool      fix_cpu_threads;
 			bool      disable_actor_fade;
@@ -53,8 +53,9 @@ namespace HFPF
 
 		inline static REL::Relocation<std::uintptr_t> BlackLoadingScreensAddress{ AID::BlackLoadingScreens, Offsets::BlackLoadingScreens };
 		inline static REL::Relocation<std::uintptr_t> LoadingScreensAddress{ AID::LoadingScreens, Offsets::LoadingScreens };
+		inline static REL::Relocation<std::uintptr_t> PresentThreadBlockAddress{ AID::PresentThread, Offsets::PresentThreadBlock };
+		inline static REL::Relocation<std::uintptr_t> Present{ AID::PresentThread, Offsets::PresentInject };
 		inline static REL::Relocation<std::uintptr_t> PostLoadInjectAddress{ AID::PostLoadInject, Offsets::PostLoadInject };
-		inline static REL::Relocation<std::uintptr_t> LoadScreenPlusLimiterAddress{ AID::LoadScreenPlusLimiterInject, Offsets::LoadScreenPlusLimiterInject };
 		inline static REL::Relocation<std::uintptr_t> ActorFade_a{ AID::ActorFade, Offsets::ActorFade };
 		inline static REL::Relocation<std::uintptr_t> PlayerFade_a{ AID::PlayerFade, Offsets::PlayerFade };
 

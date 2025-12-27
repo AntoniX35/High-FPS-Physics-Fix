@@ -36,7 +36,7 @@ void _AssertionFailed_ErrCode(const char * file, unsigned long line, const char 
 		logger::critical("Assertion failed in {} ({}): {} (code = {} ({}))", file, line, desc, code, code);
 	else
 	{
-		UInt32	code32 = code;
+		auto code32 = static_cast<UInt32>(code);
 		logger::critical("Assertion failed in {} ({}): {} (code = {} ({}))", file, line, desc, code32, code32);
 	}
 	

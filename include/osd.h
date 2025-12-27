@@ -103,6 +103,11 @@ namespace HFPF
 		public IDriver,
 		IConfig
 	{
+		enum Font
+		{
+			DroidSans = 1,
+			FontMax
+		};
 	public:
 		static inline constexpr auto ID = DRIVER_ID::OSD;
 
@@ -118,7 +123,7 @@ namespace HFPF
 			bool enabled;
 			//bool initial;
 			float interval;
-			//Font font;
+			Font font;
 			std::string font_file;
 			std::string font_color;
 			std::string font_outline_color;
@@ -179,7 +184,6 @@ namespace HFPF
 		virtual bool Prepare() override;
 
 		static StatsRenderer::Align ConfigGetStatsRendererAlignment(std::int32_t param);
-		//static int ConfigGetFontResource(Font font);
 		static void ConfigParseColors(const std::string& in, DirectX::XMVECTORF32& out);
 		static void ConfigParseScale(const std::string& in, DirectX::XMFLOAT2A& out);
 		static void ConfigParseVector2(const std::string& in, DirectX::XMFLOAT2A& out);

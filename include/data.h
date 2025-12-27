@@ -5,11 +5,11 @@ namespace HFPF
 	namespace AID
 	{
 		constexpr REL::ID FPS_Cap_Patch1(133902);
+		constexpr REL::ID PresentThread(700869);
 		constexpr REL::ID FullScreen_Patch1(1547437);
 		constexpr REL::ID ResizeBuffers(212827);
 		constexpr REL::ID ResizeTarget(796949);
 		constexpr REL::ID D3D11Create(224250);
-		constexpr REL::ID LoadScreenPlusLimiterInject(700869);
 		constexpr REL::ID CreateWindowEx_a(193854);
 		constexpr REL::ID Upscale(288964);
 		constexpr REL::ID Untie(462873);
@@ -47,6 +47,7 @@ namespace HFPF
 	{
 		static inline constexpr std::uintptr_t FPS_Cap_Patch1 = 0xAA;                    //Fallout4.exe+0x00D423BA
 		static inline constexpr std::uintptr_t FPS_Cap_Patch2 = 0xB3;                    //Fallout4.exe+0x00D423C3
+		static inline constexpr std::uintptr_t PresentThreadBlock = 0x30;                //Fallout4.exe+0x01D0B6A0
 		static inline constexpr std::uintptr_t Borderless_Patch = 0x5C;                  //Fallout4.exe+0x00D4236C
 		static inline constexpr std::uintptr_t FullScreen_Patch1 = 0xD0;                 //Fallout4.exe+0x00CAAC70
 		static inline constexpr std::uintptr_t FullScreen_Patch3 = 0x101;                //Fallout4.exe+0x00CAACA1
@@ -63,7 +64,6 @@ namespace HFPF
 		static inline constexpr std::uintptr_t LoadingScreens = 0x19D;                   //Fallout4.exe+0x00CBFFCD
 		static inline constexpr std::uintptr_t PostLoadInject = 0x2B;                    //Fallout4.exe+0x0126D75B
 		static inline constexpr std::uintptr_t BethesdaVsync = 0x332;                    //Fallout4.exe+0x01D17792
-		static inline constexpr std::uintptr_t LoadScreenPlusLimiterInject = 0xE;        //Fallout4.exe+0x01D0B67E
 		static inline constexpr std::uintptr_t PresentInject = 0x48;                     //Fallout4.exe+0x01D0B6B8
 		static inline constexpr std::uintptr_t Untie = 0x6B;                             //Fallout4.exe+0x01B1393B
 		static inline constexpr std::uintptr_t FixStuttering1 = 0x196;                   //Fallout4.exe+0x01D6EB96
@@ -114,6 +114,7 @@ namespace HFPF
 		static inline constexpr std::uint8_t NOP6[] = { 0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00 };
 		static inline constexpr std::uint8_t NOP8[] = { 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+		static inline constexpr std::uint8_t loading_patch[] = { 0xF2, 0x48, 0x90, 0xF2, 0x48, 0x90, 0xF2, 0x48, 0x90, 0x90 };
 		static inline constexpr std::uint8_t screen_patch[] = { 0xB8, 0x01, 0x00, 0x00, 0x00, 0x90, 0x90 };
 		static inline constexpr std::uint8_t fullscreen1_patch[] = { 0x41, 0x80, 0xFB, 0x01, 0x90, 0x90, 0x90 };
 		static inline constexpr std::uint8_t fullscreenJMP_patch[] = { 0xEB, 0x18 };

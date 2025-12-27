@@ -32,20 +32,28 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STR
 
 project(
 	HighFPSPhysicsFix
-	VERSION 0.8.11
+	VERSION 0.8.13
 	LANGUAGES CXX RC
 )
 
 configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/cmake/Version.h.in
-	${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
-	@ONLY
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Version.h.in
+        ${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
+        @ONLY
 )
 
 configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.rc.in
-	${CMAKE_CURRENT_BINARY_DIR}/version.rc
-	@ONLY
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/version.rc
+        @ONLY
+)
+
+file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/droidsans.font" DROIDSANS_FONT_FILE)
+
+configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/resources.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/resources.rc
+        @ONLY
 )
 
 # ---- Include guards ----
@@ -120,10 +128,11 @@ add_library(
 	${PROJECT_NAME}
 	SHARED
 	${headers}
-	${sources}
-	${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
-	${CMAKE_CURRENT_BINARY_DIR}/version.rc
-	.clang-format
+        ${sources}
+        ${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
+        ${CMAKE_CURRENT_BINARY_DIR}/version.rc
+        ${CMAKE_CURRENT_BINARY_DIR}/resources.rc
+        .clang-format
 )
 
 target_compile_features(

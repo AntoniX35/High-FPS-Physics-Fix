@@ -60,6 +60,8 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	F4SE::Init(a_f4se);
 	F4SE::AllocTrampoline(1 << 12);
 
+    InitializeLog();
+
 	const auto ver = a_f4se->RuntimeVersion();
 
 	logger::info("Game version : {}", ver.string());

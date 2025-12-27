@@ -10,18 +10,11 @@ def make_rel_archive(a_args):
         os.utime(a_path, (time.time(), time.time()))
         archive.write(a_path, "F4SE/Plugins/{}".format(os.path.basename(a_path)))
 
-    def write_fontfile(a_path):
-        os.utime(a_path, (time.time(), time.time()))
-        archive.write(a_path, "F4SE/Plugins/HFonts/{}".format(os.path.basename(a_path)))
-
     def write_rootfile(a_extension):
         do_write("{}/{}{}".format(a_args.src_dir, a_args.name, a_extension))
 
     do_write(a_args.dll)
     write_rootfile(".ini")
-
-    font_file_path = os.path.join(a_args.src_dir, "droidsans.font")
-    write_fontfile(font_file_path)
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="archive build artifacts for distribution")

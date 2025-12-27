@@ -124,6 +124,7 @@ namespace HFPF
 		virtual void OnGameConfigLoaded() override;
 
 		void SetupCursorLockMP();
+		void DetectFocusChange();
 
 		bool SetCursorLock(HWND hwnd);
 		void CaptureCursor(HWND hwnd, bool sw);
@@ -160,7 +161,11 @@ namespace HFPF
 			bool center_window;
 			int  offset_x;
 			int  offset_y;
+			bool detect_focus;
 		} m_conf;
+
+		bool m_focused;
+		bool m_focus_tracking;
 
 		MsgProc m_mp;
 

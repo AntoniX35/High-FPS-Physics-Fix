@@ -11,6 +11,7 @@ namespace HFPF
 	static constexpr const char* CKEY_VSYNC = "EnableVSync";
 	static constexpr const char* CKEY_VSYNCPRESENTINT = "VSyncPresentInterval";
 	static constexpr const char* CKEY_DISABLEVSYNC = "DisableVSyncWhileLoading";
+	static constexpr const char* CKEY_DISABLEVSYNCLOCKPICK = "DisableVSyncWhileLockpicking";
 
 	static constexpr const char* SECTION_DISPLAY = "Display";
 	static constexpr const char* CKEY_FULLSCREEN = "Fullscreen";
@@ -31,6 +32,7 @@ namespace HFPF
 	static constexpr const char* CKEY_UILOADINGFPS = "LoadingScreenFPS";
 	static constexpr const char* CKEY_UILOCKFPS = "LockpickingFPS";
 	static constexpr const char* CKEY_UIPIPFPS = "PipBoyFPS";
+	static constexpr const char* CKEY_OUTFOCUSFPS = "OutOfFocusFPS";
 	static constexpr const char* CKEY_FPSLIMIT_MODE = "FramerateLimitMode";
 
 	static constexpr const char* CKEY_RESOLUTON = "Resolution";
@@ -75,10 +77,12 @@ namespace HFPF
 		m_present_flags(0),
 		oo_expire_time(0),
 		oo_current_fps_max(0),
+		m_limits{},
 		m_dxgiFactory(nullptr),
 		m_swapchain{ 0, 0, 0 },
 		m_vsync_present_interval(0),
-		m_current_vsync_present_interval(0)
+		m_current_vsync_present_interval(0),
+		m_focused(true)
 	{
 		m_swapchain.flags = 0;
 		m_swapchain.width = 0;
@@ -114,6 +118,7 @@ namespace HFPF
 
 		m_conf.disable_clamp = GetConfigValue(SECTION_MAIN, CKEY_DISABLEIFPSCLAMP, true);
 		m_conf.disable_vsync_loading = GetConfigValue(SECTION_MAIN, CKEY_DISABLEVSYNC, true);
+		m_conf.disable_vsync_lockpicking = GetConfigValue(SECTION_MAIN, CKEY_DISABLEVSYNCLOCKPICK, false);
 
 		gameConfig.Get(SECTION_DISPLAY, "iSize W", 0i64, m_originalResW);
 		gameConfig.Get(SECTION_DISPLAY, "iSize H", 0i64, m_originalResH);
@@ -126,7 +131,7 @@ namespace HFPF
 		m_conf.disabletargetresize = GetConfigValue(SECTION_DISPLAY, CKEY_TARGETDISABLE, false);
 
 		m_conf.vsync_on = GetConfigValue(SECTION_MAIN, CKEY_VSYNC, true);
-		m_conf.vsync_present_interval = std::clamp<std::uint32_t>(GetConfigValue<std::uint32_t>(SECTION_DISPLAY, CKEY_VSYNCPRESENTINT, 1), 1, 4);
+		m_conf.vsync_present_interval = std::clamp<std::uint32_t>(GetConfigValue<std::uint32_t>(SECTION_MAIN, CKEY_VSYNCPRESENTINT, 1), 1, 4);
 		m_conf.swap_effect = GetConfigValue(SECTION_DISPLAY, CKEY_SWAPEFFECT, 0);
 		m_conf.scale_mode = GetConfigValue(SECTION_DISPLAY, CKEY_SCALINGMODE, 1);
 		if (m_conf.scale_mode == 1) {
@@ -151,7 +156,7 @@ namespace HFPF
 		m_conf.limits.ui_loadscreen = GetConfigValue(SECTION_LIMIT, CKEY_UILOADINGFPS, 350.0f);
 		m_conf.limits.ui_lockpick = GetConfigValue(SECTION_LIMIT, CKEY_UILOCKFPS, 60.0f);
 		m_conf.limits.ui_pipboy = GetConfigValue(SECTION_LIMIT, CKEY_UIPIPFPS, 60.0f);
-
+		m_conf.limits.out_of_focus = GetConfigValue(SECTION_LIMIT, CKEY_OUTFOCUSFPS, 60.0f);
 		if (!ConfigParseResolution(GetConfigValue(SECTION_DISPLAY, CKEY_RESOLUTON, "-1 -1"), m_conf.resolution)) {
 			m_conf.resolution[0] = -1;
 			m_conf.resolution[1] = -1;
@@ -227,6 +232,12 @@ namespace HFPF
 		if (m_conf.limits.ui_pipboy > 0.0f) {
 			m_limits.pipboy_fps = static_cast<long long>((1.0L / static_cast<long double>(m_conf.limits.ui_pipboy)) * 1000000.0L);
 			logger::info("[Render] Framerate limit (pipboy): {}", m_conf.limits.ui_pipboy);
+		}
+		if (m_conf.limits.out_of_focus > 0.0f) {
+			m_limits.out_of_focus_fps = static_cast<long long>((1.0L / static_cast<long double>(m_conf.limits.out_of_focus)) * 1000000.0L);
+			m_hasLimits = true;
+			fps_limit = 1;
+			logger::info("[Render] Framerate limit (out of focus): {}", m_conf.limits.out_of_focus);
 		}
 		if (m_conf.limits.game > 0.0f || m_conf.limits.ui_loadscreen > 0.0f || m_conf.limits.ui_lockpick > 0.0f || m_conf.limits.ui_pipboy > 0.0f) {
 			m_hasLimits = true;
@@ -643,7 +654,7 @@ namespace HFPF
 		}
 		if (a_event.menuName == RE::LockpickingMenu::MENU_NAME) {
 			if (a_event.opening) {
-				QueueFPSLimitOverride(m_Instance.m_limits.lockpick_fps, false);
+				QueueFPSLimitOverride(m_Instance.m_limits.lockpick_fps, m_Instance.m_conf.disable_vsync_lockpicking);
 			} else {
 				QueueFPSLimitOverrideReset();
 			}
@@ -668,6 +679,10 @@ namespace HFPF
 
 	long long DRender::GetCurrentFramerateLimit()
 	{
+		if (!m_Instance.m_focused && m_Instance.m_limits.out_of_focus_fps > 0) {
+			return m_Instance.m_limits.out_of_focus_fps;
+		}
+
 		if (m_Instance.oo_expire_time > 0) {
 			if (IPerfCounter::Query() < m_Instance.oo_expire_time) {
 				return m_Instance.oo_current_fps_max;
@@ -954,6 +969,19 @@ namespace HFPF
 		}
 
 		return hr;
+	}
+
+	void DRender::SetFocused(bool a_focused)
+	{
+		if (m_Instance.m_focused == a_focused) {
+			return;
+		}
+
+		m_Instance.m_focused = a_focused;
+
+		if (m_Instance.m_limits.out_of_focus_fps > 0 && m_Instance.limiter_installed) {
+			logger::info("[Render] Focus {} - {} out of focus framerate limit", a_focused ? "gained" : "lost", a_focused ? "restoring" : "applying");
+		}
 	}
 
 	HRESULT WINAPI DRender::CreateDXGIFactory_Hook(REFIID riid, _COM_Outptr_ void** ppFactory)
