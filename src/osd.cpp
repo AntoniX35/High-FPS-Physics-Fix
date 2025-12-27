@@ -258,7 +258,7 @@ namespace HFPF
 
 	bool StatsRenderer::Load(int resource)
 	{
-		auto handle = GetModuleHandle(L"Fallout4.exe");
+		auto handle = GetCurrentModuleHandle();
 
 		HRSRC hRes = ::FindResource(handle, MAKEINTRESOURCE(resource), RT_RCDATA);
 		if (hRes == nullptr) {
